@@ -38,6 +38,7 @@ class collapsible_widget_area {
 		if ( is_multisite() && is_plugin_active_for_network( $this->plugin_file ) )
 			add_action( 'network_admin_menu', array( $this, 'add_network_options_page' ) );
 		
+		$this->_is_multinetwork();
 		if( is_network_admin() && $this->is_multinetwork && 1 == $GLOBALS['current_site']->id ) {
 			$this->_is_primary_network = true;
 			if( 'sites.php?page=' . $this->settings_page === basename( $_SERVER['REQUEST_URI'] ) ) {
@@ -149,8 +150,8 @@ class collapsible_widget_area {
 		
 		add_submenu_page( 'settings.php', $page_title, $menu_title, $cap, $slug, $callback );
 		if ( $this->_is_primary_network ) {
-			$page_title = sprintf( __( 'Multinetwork %s', $page_title ) );
-			$menu_title = sprintf( __( 'Multinetwork %s', $menu_title ) );
+			$page_title = sprintf( __( 'Multinetwork %s' ), $page_title );
+			$menu_title = sprintf( __( 'Multinetwork %s' ), $menu_title );
 			$cap = 'manage_networks';
 			add_submenu_page( 'sites.php', $page_title, $menu_title, $cap, $slug, $callback );
 		}
