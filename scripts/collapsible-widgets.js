@@ -1,0 +1,29 @@
+jQuery( function( $ ) {
+	if ( typeof( collapsible_widget_area ) === 'undefined' ) {
+		collapsible_widget_area = { 'type' : 'tabbed' };
+	}
+	
+	if ( collapsible_widget_area.type == 'accordion' ) {
+		$( '.collapsible-item .widgettitle' ).each( function() {
+			$( this ).html( $( this ).text() );
+			$( this ).wrapInner( '<a href="#' + $( this ).closest( '.collapsible-item' ).attr( 'id' ) + '"/>' );
+			$( this ).insertBefore( $( this ).closest( '.collapsible-item' ) );
+		} );
+		$( '.collapsible-widget-container .widgettitle' ).first().addClass( 'first-tab' );
+		$( '.collapsible-widget-container .widgettitle' ).last().addClass( 'last-tab' );
+		$( '.collapsible-widget-container' ).accordion();
+	} else {
+		var collapsibleIDs = 0;
+		$( '.collapsible-widget-container' ).prepend( '<ul class="tab-nav"/>' );
+		$( '.collapsible-item .widgettitle' ).each( function() {
+			$( this ).wrapInner( '<a href="#' + $( this ).closest( '.collapsible-item' ).attr( 'id' ) + '"/>' );
+			$( this ).wrap( '<li/>' );
+			var currentItem = $( this ).find( 'a' );
+			$( currentItem ).unwrap();
+			$( currentItem ).closest( 'li' ).appendTo( $( currentItem ).closest( '.collapsible-widget-container' ).find( '.tab-nav' ) );
+		} );
+		$( '.collapsible-widget-container .tab-nav li' ).first().addClass( 'first-tab' );
+		$( '.collapsible-widget-container .tab-nav li' ).last().addClass( 'last-tab' );
+		$( '.collapsible-widget-container' ).tabs();
+	}
+} );
