@@ -11,7 +11,12 @@ jQuery( function( $ ) {
 		} );
 		$( '.collapsible-widget-container .widgettitle' ).first().addClass( 'first-tab' );
 		$( '.collapsible-widget-container .widgettitle' ).last().addClass( 'last-tab' );
-		$( '.collapsible-widget-container' ).accordion();
+		
+		var ciwa_accordion_opts = {};
+		ciwa_accordion_opts.collapsible = collapsible_widget_area.collapsible;
+		ciwa_accordion_opts.active = collapsible_widget_area.closed ? false : 0;
+		
+		$( '.collapsible-widget-container' ).accordion( ciwa_accordion_opts );
 	} else {
 		var collapsibleIDs = 0;
 		$( '.collapsible-widget-container' ).prepend( '<ul class="tab-nav"/>' );
@@ -24,6 +29,12 @@ jQuery( function( $ ) {
 		} );
 		$( '.collapsible-widget-container .tab-nav li' ).first().addClass( 'first-tab' );
 		$( '.collapsible-widget-container .tab-nav li' ).last().addClass( 'last-tab' );
-		$( '.collapsible-widget-container' ).tabs();
+		
+		var ciwa_tab_opts = {};
+		if ( collapsible_widget_area.cookie ) {
+			ciwa_tab_opts.cookie = true;
+		}
+		
+		$( '.collapsible-widget-container' ).tabs( ciwa_tab_opts );
 	}
 } );
