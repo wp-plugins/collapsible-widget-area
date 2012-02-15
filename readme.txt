@@ -59,6 +59,10 @@ If you would like to **force** this plugin to be active (generally only useful f
 
 == Frequently Asked Questions ==
 
+= Will this plugin work in versions of WordPress older than 3.3? =
+
+There is limited support for the tabbed interface in WordPress 3.2.x, but the accordion interface does not work.
+
 = My widget title should have a link/image, but it doesn't. Why not? =
 
 In order to create the handles for the accordions/tabs, the titles have to be wrapped in links to those items. Since you can't wrap a link inside of a link, this plugin strips any HTML from the widget title before rendering the collapsible interface.

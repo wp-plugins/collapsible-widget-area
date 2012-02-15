@@ -32,16 +32,26 @@ class collapsible_widget extends WP_Widget {
 			$theme = $options['uitheme'];
 		}
 		$theme = apply_filters( 'collapsible-widget-ui-theme', $theme, $options['uitheme'] );
-		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.2.3a', true );
-		/*wp_register_script( 'jquery-cookie', plugins_url( 'scripts/jquery.cookie.js', __FILE__ ), array( 'jquery-ui' ), '1.0', true );*/
 		if ( ! empty( $theme ) )
 			wp_register_style( 'jquery-ui', $theme, array(), '1.8.17', 'screen' );
 		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.2a', true );
 		
-		if ( is_active_sidebar( $collapsible_widget_area->sidebar_id ) )
+		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.2.3a', true );
+		/*wp_register_script( 'jquery-cookie', plugins_url( 'scripts/jquery.cookie.js', __FILE__ ), array( 'jquery-ui' ), '1.0', true );*/
+		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
+			/*print( "\n<!-- This is a version lower than 3.3 -->\n" );*/
+			/*wp_register_script( 'jquery-ui', includes_url( 'js/jquery/ui.core.js' ), array( 'jquery' ), '1.8.12', true );*/
+			/*wp_register_script( 'jquery-ui-accordion', plugins_url( 'scripts/jquery.ui.accordion.min.js', __FILE__ ), array( 'jquery-ui', 'jquery-ui-widget' ), '1.8.16', true );*/
+			/*wp_register_script( 'jquery-ui-tabs', includes_url( 'js/jquery/ui.tabs.js' ), array( 'jquery-ui' ), '1.8.16', true );*/
+			/*wp_enqueue_script( 'jquery-ui-accordion' );*/
+			wp_enqueue_script( 'jquery-ui-tabs' );
+			wp_enqueue_script( 'collapsible-widgets' );
+			
 			wp_enqueue_style( 'collapsible-widgets' );
-	}
-	
+		} else {
+			if ( is_active_sidebar( $collapsible_widget_area->sidebar_id ) )
+				wp_enqueue_style( 'collapsible-widgets' );
+		}
 	function defaults() {
 		return apply_filters( 'collapsible-widget-defaults', array( 
 			'type'        => 'tabbed', 
@@ -145,6 +155,7 @@ class collapsible_widget extends WP_Widget {
 		$c['cookie'] = $this->cookie;
 		echo '<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $c ) . ';</script>';
 		if ( 'accordion' === $this->tabbed_accordion ) {
+			echo '<script type="text/javascript">var collapsible_widget_area = { "type" : "accordion" };</script>';
 			wp_enqueue_script( 'jquery-ui-accordion' );
 		} else {
 			wp_enqueue_script( 'jquery-cookie' );
