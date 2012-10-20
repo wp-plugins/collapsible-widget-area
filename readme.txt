@@ -4,7 +4,7 @@ Donate link: http://giving.umw.edu/
 Tags: tab, accordion, widget, jquery, tabbed
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 0.2a
+Stable tag: 0.3a
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
 
@@ -120,3 +120,7 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 
 = 0.1a =
 This is the first version of this plugin
+
+== Upgrade Notice ==
+= 0.3a =
+Fixes issue with CSS for accordion and tab styles
