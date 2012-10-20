@@ -26,8 +26,6 @@ class collapsible_widget extends WP_Widget {
 			$uivers = '1.9.0';
 		}
 		
-		print( "\n<!-- WordPress Version: {$wp_version} -->\n" );
-		
 		$widget_ops = array( 
 			'classname'   => 'collapsible-widget', 
 			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
