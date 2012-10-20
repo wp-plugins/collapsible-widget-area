@@ -26,8 +26,6 @@ class collapsible_widget extends WP_Widget {
 			$uivers = '1.9.0';
 		}
 		
-		print( "\n<!-- WordPress Version: {$wp_version} -->\n" );
-		
 		$widget_ops = array( 
 			'classname'   => 'collapsible-widget', 
 			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
@@ -85,12 +83,22 @@ class collapsible_widget extends WP_Widget {
 		$instance = wp_parse_args( $instance, $this->defaults() );
 		global $wp_registered_widgets, $collapsible_widget_area;
 		$widgets = wp_get_sidebars_widgets();
-		if ( ! array_key_exists( $collapsible_widget_area->sidebar_id, $widgets ) ) {
-			_e( 'The collapsible widget area appears to be empty, or does not exist. Please drag some widgets into that area in order to have them available in this widget.', 'collapsible-widget-area' );
+		if ( empty( $collapsible_widget_area->sidebar_id ) ) {
+			_e( 'There do not appear to be any collapsible widget sidebars configured. Please update the settings for this plugin to set up at least one collapsible widget area.', 'collapsible-widget-area' );
 			return;
 		}
 		/*$this->widgets_list();*/
 ?>
+	<p><?php _e( 'Which collapsible widget area should be used?' ) ?><br/>
+    	<select name="<?php echo $this->get_field_name( 'sidebar_id' ) ?>" id="<?php echo $this->get_field_id( 'sidebar_id' ) ?>">
+<?php
+		for( $i=1; $i <= $collapsible_widget_area->options['sidebars']; $i++ ) {
+?>
+			<option value="<?php echo (int) $i ?>"<?php selected( $instance['sidebar_id'], $i ) ?>><?php echo sprintf( $collapsible_widget_area->args['id'], $i ) ?></option>
+<?php
+		}
+?>
+        </select></p>
 	<p><?php _e( 'Display widgets in which manner?' ) ?><br/>
 		<input type="radio" name="<?php echo $this->get_field_name( 'show_what' ) ?>" id="<?php echo $this->get_field_id( 'show_what_tabbed' ) ?>" value="tabbed"<?php checked( $instance['show_what'], 'tabbed' ) ?>/> <label for="<?php echo $this->get_field_id( 'show_what_tabbed' ) ?>"><?php _e( 'Tabs' ) ?></label><br/>
 		<input type="radio" name="<?php echo $this->get_field_name( 'show_what' ) ?>" id="<?php echo $this->get_field_id( 'show_what_accordion' ) ?>" value="accordion"<?php checked( $instance['show_what'], 'accordion' ) ?>/> <label for="<?php echo $this->get_field_id( 'show_what_accordion' ) ?>"><?php _e( 'Accordion' ) ?></label></p>
@@ -152,7 +160,7 @@ class collapsible_widget extends WP_Widget {
 		extract( $args );
 		$instance = wp_parse_args( $instance, $this->defaults() );
 		global $collapsible_widget_area;
-		if ( ! is_active_sidebar( $collapsible_widget_area->sidebar_id ) )
+		if ( ! is_active_sidebar( $collapsible_widget_area->sidebar_id[ 's-' . $instance['sidebar_id'] ] ) )
 			return;
 		
 		add_action( 'wp_print_footer_scripts', array( $this, 'print_footer_scripts' ), 1 );
@@ -162,7 +170,7 @@ class collapsible_widget extends WP_Widget {
 		$this->cookie = $instance['cookie'];
 		echo $before_widget;
 		echo '<div class="collapsible-widget-container">';
-		dynamic_sidebar( $collapsible_widget_area->sidebar_id );
+		dynamic_sidebar( $collapsible_widget_area->sidebar_id[ 's-' . $instance['sidebar_id'] ] );
 		echo '</div>';
 		echo $after_widget;
 	}

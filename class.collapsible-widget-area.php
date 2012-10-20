@@ -64,7 +64,18 @@ class collapsible_widget_area {
 	}
 	
 	function register_sidebar() {
-		register_sidebar( $this->args );
+		if ( ! array_key_exists( 'sidebars', $this->options ) || ! is_numeric( $this->options['sidebars'] ) )
+			$this->options['sidebars'] = 1;
+		
+		for( $i = 1; $i <= $this->options['sidebars']; $i++ ) {
+			$args = $this->args;
+			if ( $i > 1 ) {
+				$args['name'] = sprintf( '%s %d', $this->args['name'], $i );
+				$args['id']   = sprintf( '%s-%d', $this->args['id'], $i );
+			}
+			register_sidebar( $args );
+			$this->sidebar_id[ 's-' . $i ] = $args['id'];
+		}
 	}
 	
 	/**
@@ -72,6 +83,7 @@ class collapsible_widget_area {
 	 */
 	function add_settings_fields() {
 		add_settings_field( 'uitheme', __( 'Theme to use:' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'uitheme', 'field_name' => 'uitheme' ) );
+		add_settings_field( 'sidebars', __( 'Number of collapsible areas to create?' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'sidebars', 'field_name' => 'sidebars' ) );
 	}
 	
 	function settings_section() {
@@ -103,6 +115,11 @@ class collapsible_widget_area {
     </select>
 <?php
 			break;
+			case 'sidebars' :
+?>
+	<input type="number" name="collapsible-widget-options[<?php echo $args['field_name'] ?>]" id="<?php echo $args['label_for'] ?>" class="widefat" />
+<?php
+			break;
 		}
 	}
 	
@@ -125,6 +142,8 @@ class collapsible_widget_area {
 			$input['uitheme'] = '';
 		else
 			$input['uitheme'] = esc_attr( $input['uitheme'] );
+		
+		$input['sidebars'] = is_numeric( $input['sidebars'] ) ? (int) $input['sidebars'] : 1;
 		
 		return $input;
 	}
@@ -202,6 +221,8 @@ class collapsible_widget_area {
 		if ( ! function_exists( 'update_mnetwork_option' ) )
 			return save_network_settings( $input );
 		
+		$input['sidebars'] = is_numeric( $input['sidebars'] ) ? (int) $input['sidebars'] : 1;
+		
 		$done = update_mnetwork_option( 'collapsible-widget-options', $input );
 		if ( false === $done )
 			return 'There was an error updating the settings.';
@@ -210,6 +231,8 @@ class collapsible_widget_area {
 	}
 	
 	function save_network_settings( $input ) {
+		$input['sidebars'] = is_numeric( $input['sidebars'] ) ? (int) $input['sidebars'] : 1;
+		
 		$done = update_site_option( 'collapsible-widget-options', $input );
 		if ( false === $done )
 			return 'There was an error updating the settings.';
@@ -252,7 +275,6 @@ class collapsible_widget_area {
 			'before_title'  => '<h2 class="widgettitle">',
 			'after_title'   => '</h2>',
 		) );
-		$this->sidebar_id = $this->args['id'];
 		if ( ! class_exists( 'collapsible_widget' ) ) {
 			require_once( 'class.collapsible-widget.php' );
 		}
