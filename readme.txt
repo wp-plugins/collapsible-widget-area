@@ -120,3 +120,8 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 
 = 0.1a =
 This is the first version of this plugin
+
+== Upgrade Notice ==
+
+= 0.3a =
+Fixes issue with CSS for accordion and tab styles
