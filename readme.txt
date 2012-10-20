@@ -3,7 +3,7 @@ Contributors: cgrymala
 Donate link: http://giving.umw.edu/
 Tags: tab, accordion, widget, jquery, tabbed
 Requires at least: 3.3
-Tested up to: 3.3.1
+Tested up to: 3.5
 Stable tag: 0.2a
 
 Creates a tabbed or accordion-style widget that can hold other widgets.

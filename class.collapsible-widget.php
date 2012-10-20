@@ -20,11 +20,13 @@ class collapsible_widget extends WP_Widget {
 		global $wp_version;
 		if ( version_compare( $wp_version, '3.1', '<' ) ) {
 			$uivers = 1.7;
-		} elseif ( version_compare( $wp_version, '3.5', '<' ) ) {
+		} elseif ( version_compare( $wp_version, '3.4.100', '<' ) ) {
 			$uivers = 1.8;
 		} else {
-			$uivers = 1.9;
+			$uivers = '1.9.0';
 		}
+		
+		print( "\n<!-- WordPress Version: {$wp_version} -->\n" );
 		
 		$widget_ops = array( 
 			'classname'   => 'collapsible-widget', 
@@ -48,7 +50,7 @@ class collapsible_widget extends WP_Widget {
 		}
 		$theme = apply_filters( 'collapsible-widget-ui-theme', $theme, $options['uitheme'] );
 		if ( ! empty( $theme ) )
-			wp_register_style( 'jquery-ui', $theme, array(), '1.8.17', 'screen' );
+			wp_register_style( 'jquery-ui', $theme, array(), $uivers, 'screen' );
 		
 		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.2a', true );
 		
