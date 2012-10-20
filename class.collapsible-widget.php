@@ -11,6 +11,21 @@ class collapsible_widget extends WP_Widget {
 	 * Construct our widget item
 	 */
 	function __construct() {
+		/**
+		 * Attempt to determine which version of jQueryUI is being used
+		 * v3.5 uses jQueryUI v1.9.x
+		 * v3.1-3.4.2 uses jQueryUI 1.8.x
+		 * v2.8-3.0 uses jQueryUI 1.7.x
+		 */
+		global $wp_version;
+		if ( version_compare( $wp_version, '3.1', '<' ) ) {
+			$uivers = 1.7;
+		} elseif ( version_compare( $wp_version, '3.5', '<' ) ) {
+			$uivers = 1.8;
+		} else {
+			$uivers = 1.9;
+		}
+		
 		$widget_ops = array( 
 			'classname'   => 'collapsible-widget', 
 			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
@@ -27,13 +42,14 @@ class collapsible_widget extends WP_Widget {
 		if ( 'none' == $options['uitheme'] ) {
 			$theme = null;
 		} else if ( ! stristr( '//', $options['uitheme'] ) ) {
-			$theme = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/' . $options['uitheme'] . '/jquery-ui.css';
+			$theme = sprintf( 'http://ajax.googleapis.com/ajax/libs/jqueryui/%1$s/themes/%2$s/jquery-ui.css', $uivers, $options['uitheme'] );
 		} else {
 			$theme = $options['uitheme'];
 		}
 		$theme = apply_filters( 'collapsible-widget-ui-theme', $theme, $options['uitheme'] );
 		if ( ! empty( $theme ) )
 			wp_register_style( 'jquery-ui', $theme, array(), '1.8.17', 'screen' );
+		
 		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.2a', true );
 		
 		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.2.3a', true );
@@ -52,6 +68,8 @@ class collapsible_widget extends WP_Widget {
 			if ( is_active_sidebar( $collapsible_widget_area->sidebar_id ) )
 				wp_enqueue_style( 'collapsible-widgets' );
 		}
+	}
+	
 	function defaults() {
 		return apply_filters( 'collapsible-widget-defaults', array( 
 			'type'        => 'tabbed', 
@@ -117,7 +135,7 @@ class collapsible_widget extends WP_Widget {
 			foreach ( $new_instance['on'] as $widget ) {
 				$instance['widgets'][$widget] = array(
 					'id'    => $widget,
-					'order' => empty( $new_instance['order'][$widget] ) ? 0 : (int)$new_instance['order'][$widget],
+					'order' => empty( $new_instance['order'][$widget] ) ? 0 : (int) $new_instance['order'][$widget],
 				);
 			}
 		}
