@@ -3,10 +3,12 @@
  * Define the class for the actual Collapsible widget
  */
 class collapsible_widget extends WP_Widget {
-	var $tabbed_accordion = null;
-	var $collapsible = false;
-	var $closed = false;
-	var $cookie = false;
+	/**
+	 * @var array $instance
+	 * Set up a container for the JSON info that needs to be passed
+	 */
+	var $instance = array();
+	
 	/**
 	 * Construct our widget item
 	 */
@@ -31,7 +33,8 @@ class collapsible_widget extends WP_Widget {
 			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
 		);
 		$control_ops = array( 
-			'id_base' => 'collapsible-widget' 
+			'id_base' => 'collapsible-widget', 
+			'class'   => 'collapsible-widget', 
 		);
 		parent::WP_Widget( 'collapsible-widget', __( 'Collapsible Widget', 'collapsible-widget-area' ), $widget_ops, $control_ops );
 		
@@ -50,10 +53,10 @@ class collapsible_widget extends WP_Widget {
 		if ( ! empty( $theme ) )
 			wp_register_style( 'jquery-ui', $theme, array(), $uivers, 'screen' );
 		
-		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.2a', true );
+		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.4a', true );
 		
-		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.2.3a', true );
-		/*wp_register_script( 'jquery-cookie', plugins_url( 'scripts/jquery.cookie.js', __FILE__ ), array( 'jquery-ui' ), '1.0', true );*/
+		wp_register_script( 'jquery-cookie', plugins_url( 'scripts/jquery.cookie.js', __FILE__ ), array( 'jquery-ui-tabs' ), '1.0', true );
+		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.4.0a', true );
 		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
 			/*print( "\n<!-- This is a version lower than 3.3 -->\n" );*/
 			/*wp_register_script( 'jquery-ui', includes_url( 'js/jquery/ui.core.js' ), array( 'jquery' ), '1.8.12', true );*/
@@ -65,13 +68,23 @@ class collapsible_widget extends WP_Widget {
 			
 			wp_enqueue_style( 'collapsible-widgets' );
 		} else {
-			if ( is_active_sidebar( $collapsible_widget_area->sidebar_id ) )
-				wp_enqueue_style( 'collapsible-widgets' );
+			/*print( "\n<!-- Number of sidebars: {$options['sidebars']} -->\n" );
+			print( "\n<!-- Sidebar IDs:\n" );
+			var_dump( $collapsible_widget_area->sidebar_id );
+			print( "\n-->\n" );*/
+			for ( $i = 1; $i <= $options['sidebars']; $i++ ) {
+				/*print( "\n<!-- Checking sidebar {$i} to see if it is active -->\n" );*/
+				if ( is_active_sidebar( $collapsible_widget_area->sidebar_id[  's-' . $i ] ) )
+					wp_enqueue_style( 'collapsible-widgets' );
+			}
 		}
 	}
 	
 	function defaults() {
 		return apply_filters( 'collapsible-widget-defaults', array( 
+			'invalid-widget' => false, 
+			'sidebar_id'  => 1, 
+			'title'       => sprintf( 'Area %d', 1 ), 
 			'type'        => 'tabbed', 
 			'collapsible' => false, 
 			'closed'      => false, 
@@ -80,7 +93,19 @@ class collapsible_widget extends WP_Widget {
 	}
 	
 	function form( $instance ) {
+		wp_enqueue_script( 'collapsible-widgets-admin' );
+		
 		$instance = wp_parse_args( $instance, $this->defaults() );
+		$instance['title'] = sprintf( 'Area %d', (int) $instance['sidebar_id'] );
+		
+		if ( $instance['invalid-widget'] ) {
+?>
+<?php _e( '<p>You attempted to set up a collapsible widget inside of a collapsible widget area. This could cause an infinite recursion resulting in a tear in the space-time continuum.</p> <p><strong>Please remove this widget from this sidebar</strong> in order to avoid destroying the entire universe. Thank you.</p>' ) ?>
+			<div class="hidden"><input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php _e( 'Error - Attention Required' ) ?>" readonly="readonly" /></div>
+<?php
+			return;
+		}
+		
 		global $wp_registered_widgets, $collapsible_widget_area;
 		$widgets = wp_get_sidebars_widgets();
 		if ( empty( $collapsible_widget_area->sidebar_id ) ) {
@@ -89,12 +114,16 @@ class collapsible_widget extends WP_Widget {
 		}
 		/*$this->widgets_list();*/
 ?>
-	<p><?php _e( 'Which collapsible widget area should be used?' ) ?><br/>
+	<p><label for="<?php echo $this->get_field_id( 'title' ) ?>"><?php _e( 'Title:' ) ?></label><br />
+    	<input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php echo $instance['title'] ?>" readonly="readonly" /><br />
+        <em><?php _e( 'The title is used only to differentiate between instances, and is automatically generated based on the collapsible widget area you choose below. It does not show up on the front-end anywhere.' ) ?></em></p>
+    <hr />
+	<p><label for="<?php echo $this->get_field_id( 'sidebar_id' ) ?>"><?php _e( 'Which collapsible widget area should be used?' ) ?></label><br/>
     	<select name="<?php echo $this->get_field_name( 'sidebar_id' ) ?>" id="<?php echo $this->get_field_id( 'sidebar_id' ) ?>">
 <?php
 		for( $i=1; $i <= $collapsible_widget_area->options['sidebars']; $i++ ) {
 ?>
-			<option value="<?php echo (int) $i ?>"<?php selected( $instance['sidebar_id'], $i ) ?>><?php echo sprintf( $collapsible_widget_area->args['id'], $i ) ?></option>
+			<option value="<?php echo (int) $i ?>"<?php selected( (int) $instance['sidebar_id'], $i ) ?>><?php echo sprintf( '%s %d', $collapsible_widget_area->args['name'], $i ) ?></option>
 <?php
 		}
 ?>
@@ -110,7 +139,7 @@ class collapsible_widget extends WP_Widget {
 	
 	function widgets_list() {
 		
-		print( '<ul class="collapsible-widget-options">' );
+		echo '<ul class="collapsible-widget-options">';
 		
 		$widgets = $widgets[$collapsible_widget_area->sidebar_id];
 		foreach ( $widgets as $wid ) {
@@ -134,13 +163,23 @@ class collapsible_widget extends WP_Widget {
 <?php
 		}
 		
-		print( '</ul>' );
+		echo '</ul>';
 		
 	}
 	
 	function update( $new_instance, $old_instance ) {
+		global $collapsible_widget_area;
+		$collapsible_widget_area->get_args();
+		if ( array_key_exists( 'sidebar', $_POST ) && stristr( $_POST['sidebar'], $collapsible_widget_area->args['id'] ) ) {
+			add_action( 'admin_notice', array( $this, 'recursion_warning' ) );
+			return array( 'invalid-widget' => true );
+		}
+		
 		$instance = $old_instance;
 		$instance['widgets'] = array();
+		$instance['sidebar_id'] = array_key_exists( 'sidebar_id', $new_instance ) && is_numeric( $new_instance['sidebar_id'] ) ? (int) $new_instance['sidebar_id'] : 1;
+		$instance['title'] = $instance['sidebar_id'];
+		
 		if ( array_key_exists( 'on', $new_instance ) ) {
 			foreach ( $new_instance['on'] as $widget ) {
 				$instance['widgets'][$widget] = array(
@@ -157,6 +196,12 @@ class collapsible_widget extends WP_Widget {
 	}
 	
 	function widget( $args, $instance ) {
+		if ( stristr( $args['id'], 'collapsible-widget-area' ) )
+			return;
+		
+		if ( ! array_key_exists( 'sidebar_id', $instance ) || ! is_numeric( $instance['sidebar_id'] ) )
+			$instance['sidebar_id'] = 1;
+		
 		extract( $args );
 		$instance = wp_parse_args( $instance, $this->defaults() );
 		global $collapsible_widget_area;
@@ -164,34 +209,34 @@ class collapsible_widget extends WP_Widget {
 			return;
 		
 		add_action( 'wp_print_footer_scripts', array( $this, 'print_footer_scripts' ), 1 );
-		$this->tabbed_accordion = $instance['show_what'];
-		$this->collapsible = $instance['collapsible'];
-		$this->closed = $instance['closed'];
-		$this->cookie = $instance['cookie'];
+		$id = 'collapsible-widget-container-' . uniqid();
+		$this->instance[] = array(
+			'id'          => $id, 
+			'type'        => 'accordion' === $instance['show_what'] ? 'accordion' : 'tabbed', 
+			'collapsible' => $this->is_true( $instance['collapsible'] ), 
+			'closed'      => $this->is_true( $instance['closed'] ), 
+			'cookie'      => $this->is_true( $instance['cookie'] ), 
+		);
 		echo $before_widget;
-		echo '<div class="collapsible-widget-container">';
+		echo '<div class="collapsible-widget-container" id="' . $id . '">';
 		dynamic_sidebar( $collapsible_widget_area->sidebar_id[ 's-' . $instance['sidebar_id'] ] );
 		echo '</div>';
 		echo $after_widget;
 	}
 	
 	function print_footer_scripts() {
-		$c = array();
-		$c['type'] = 'accordion' === $this->tabbed_accordion ? 'accordion' : 'tabbed';
-		$c['collapsible'] = $this->collapsible;
-		$c['closed'] = $this->closed;
-		$c['cookie'] = $this->cookie;
-		echo '<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $c ) . ';</script>';
-		if ( 'accordion' === $this->tabbed_accordion ) {
-			echo '<script type="text/javascript">var collapsible_widget_area = { "type" : "accordion" };</script>';
-			wp_enqueue_script( 'jquery-ui-accordion' );
-		} else {
-			wp_enqueue_script( 'jquery-cookie' );
-			wp_enqueue_script( 'jquery-ui-tabs' );
-		}
+		echo '<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $this->instance ) . ';</script>';
+		wp_enqueue_script( 'jquery-ui-accordion' );
+		wp_enqueue_script( 'jquery-cookie' );
+		wp_enqueue_script( 'jquery-ui-tabs' );
 		
 		wp_enqueue_script( 'collapsible-widgets' );
 		return;
+	}
+	
+	function is_true( &$val ) {
+		$val = ! in_array( $val, array( 'false', false, 0, '0' ) );
+		return $val;
 	}
 }
 ?>

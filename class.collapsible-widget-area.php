@@ -11,7 +11,7 @@ class collapsible_widget_area {
 	var $_is_network_settings_page = false;
 	var $settings_page = 'collapsible-widgets';
 	var $options = array();
-	var $defaults = array( 'uitheme' => '' );
+	var $defaults = array( 'uitheme' => '', 'sidebars' => 1 );
 	var $plugin_file = null;
 	var $msg = false;
 	
@@ -33,7 +33,8 @@ class collapsible_widget_area {
 	function __construct() {
 		$this->plugin_file = trailingslashit( basename( dirname( __FILE__ ) ) ) . str_replace( 'class.', '', basename( __FILE__ ) );
 		$this->get_args();
-		add_action( 'widgets_init', array( $this, 'register_sidebar' ) );
+		$this->_get_options();
+		add_action( 'widgets_init', array( $this, 'register_sidebar' ), 11 );
 		
 		if ( is_multisite() && is_plugin_active_for_network( $this->plugin_file ) )
 			add_action( 'network_admin_menu', array( $this, 'add_network_options_page' ) );
@@ -60,21 +61,42 @@ class collapsible_widget_area {
 			}
 		}
 		
-		add_action( 'admin_menu', array( $this, 'add_options_page' ) );
-	}
-	
-	function register_sidebar() {
 		if ( ! array_key_exists( 'sidebars', $this->options ) || ! is_numeric( $this->options['sidebars'] ) )
 			$this->options['sidebars'] = 1;
 		
+		$this->sidebar_args = array();
 		for( $i = 1; $i <= $this->options['sidebars']; $i++ ) {
 			$args = $this->args;
 			if ( $i > 1 ) {
 				$args['name'] = sprintf( '%s %d', $this->args['name'], $i );
 				$args['id']   = sprintf( '%s-%d', $this->args['id'], $i );
 			}
-			register_sidebar( $args );
 			$this->sidebar_id[ 's-' . $i ] = $args['id'];
+			$this->sidebar_args[$i] = $args;
+		}
+		
+		if ( is_admin() ) {
+			wp_register_script( 'collapsible-widgets-admin', plugins_url( 'scripts/collapsible-widgets-admin.js', __FILE__ ), array( 'jquery' ), '0.4.0a', true );
+		}
+		
+		add_action( 'admin_menu', array( $this, 'add_options_page' ) );
+		add_shortcode( 'collapsible-widget', array( $this, 'do_shortcode' ) );
+	}
+	
+	function do_shortcode( $atts ) {
+		if ( ! array_key_exists( 'id', $atts ) || ! is_numeric( $atts['id'] ) )
+			$atts['id'] = 1;
+		
+		$atts['sidebar_id'] = $atts['id'];
+		$tmp = new collapsible_widget;
+		ob_start();
+		$tmp->widget( array( 'before_widget' => '', 'after_widget' => '' ), $atts );
+		return ob_get_clean();
+	}
+	
+	function register_sidebar() {
+		foreach( $this->sidebar_args as $args ) {
+			register_sidebar( $args );
 		}
 	}
 	
@@ -83,7 +105,7 @@ class collapsible_widget_area {
 	 */
 	function add_settings_fields() {
 		add_settings_field( 'uitheme', __( 'Theme to use:' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'uitheme', 'field_name' => 'uitheme' ) );
-		add_settings_field( 'sidebars', __( 'Number of collapsible areas to create?' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'sidebars', 'field_name' => 'sidebars' ) );
+		add_settings_field( 'collapsible-sidebars', __( 'Number of collapsible areas to create?' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'sidebars', 'field_name' => 'sidebars' ) );
 	}
 	
 	function settings_section() {
@@ -117,7 +139,7 @@ class collapsible_widget_area {
 			break;
 			case 'sidebars' :
 ?>
-	<input type="number" name="collapsible-widget-options[<?php echo $args['field_name'] ?>]" id="<?php echo $args['label_for'] ?>" class="widefat" />
+	<input type="number" name="collapsible-widget-options[<?php echo $args['field_name'] ?>]" id="<?php echo $args['label_for'] ?>" value="<?php echo (int) $this->options['sidebars'] ?>" class="widefat" />
 <?php
 			break;
 		}
@@ -268,7 +290,8 @@ class collapsible_widget_area {
 	function get_args() {
 		$this->args = apply_filters( 'collapsible-widget-area-args', array(
 			'name'          => __( 'Collapsible Widget Area', 'collapsible-widget-area' ),
-			'id'            => 'collapsible-widget-area',
+			'id'            => 'collapsible-widget-area', 
+			'class'         => 'collapsible-widget-area', 
 			'description'   => __( 'Drag widgets into this area in order to use them inside of the Collapsible Widget.', 'collapsible-widget-area' ),
 			'before_widget' => '<div id="%1$s" class="widget %2$s collapsible-item">',
 			'after_widget'  => '</div>',

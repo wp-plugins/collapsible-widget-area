@@ -22,6 +22,7 @@ To use this plugin, simply drag widgets into the "Collapsible Widget Area" widge
 2. Under Settings -> Collapsible Widget Options, you can choose the jQueryUI theme you want to apply to the collapsible widget container. All of the included jQueryUI themes are hosted on Google's CDN. If you already have a jQueryUI theme included in your WordPress theme, you can choose "None" from the option selector, and no extra stylesheet will be included for this widget. If you want to include your own jQueryUI theme, there are two ways you can do so:
     1. Use the collapsible-widget-ui-theme filter to specify the exact URI of the stylesheet you want to include.
     2. Use the collapsible-widget-theme-list filter to add or remove items from the list of available themes. The parameter sent through this filter is an associative array of the available themes. If the theme is hosted on Google's CDN, just the keyword is needed as the array key (for instance, the keyword for the "UI Lightness" theme is "ui-lightness" and the keyword for the "Base" theme is "base"). If the theme is hosted elsewhere, the entire URI to the stylesheet should be used as the array key. The array value should be the human-readable name of the theme.
+3. Under Settings -> Collapsible Widget Options, you can specify how many separate Collapsible Widget Areas should be available within Appearance -> Widgets.
 
 == Installation ==
 
@@ -78,11 +79,17 @@ Yes. This plugin is set up to work in any of the following situations:
 
 = Can I have more than one Collapsible Widget Area? =
 
-Unfortunately, not yet.
+Yes you can. Simply go to Settings -> Collapsible Widget Options and specify how many Collapsible Widget Areas you want. Then, when you go back to Appearance -> Widgets, you will see that many Collapsible Widget Areas available on the right side.
 
 = Can I insert the Collapsible Widget Area into a post or page, instead of using it in a widgetized area? =
 
-Theoretically, yes. However, in order to do so at this time, you will need to use a separate plugin that allows you to insert widgets into posts/pages. A shortcode for this plugin might be coming in the future, but it's not ready yet.
+Yes, you can use the shortcode `[collapsible-widget id=#]` (where you replace the # with the ID of the Collapsible Widget Area you want to render). The following options are available for the shortcode:
+
+* id (int) - the ID of the Collapsible Widget Area to be rendered. Defaults to 1
+* show_what (accordion|tabbed) - specifies which type of interface to use. Defaults to "tabbed"
+* collapsible (bool) - if the type is set to accordion, this option specifies whether or not the entire accordion can be closed, or if one item always has to be open. Defaults to false
+* closed (bool) - if the type is set to accordion, and the collapsible option is set to true, this option specifies whether or not to start with the accordion completely collapsed. Defaults to false
+* cookie (bool) - if the type is set to tabbed, this option specifies whether to save which tab is active so that it will be the active tab the next time the person returns to the page. Defaults to false
 
 = Can I use the Collapsible Widget Area in my theme, rather than using it in a widgetized area? =
 
@@ -112,7 +119,12 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 == Changelog ==
 
 = 0.4a =
-* Begin implementing ability to use more than one collapsible widget area
+* Implement ability to use more than one collapsible widget area
+* Implement error handling for situations where a collapsible widget is dragged into a collapsible widget area
+* Begin implementing shortcode
+
+= 0.3.1a =
+* Remove extraneous debug info that threw PHP error about headers already being sent
 
 = 0.3a =
 * Fix errors in CSS. With the bump to 1.9 in jQueryUI, the UI theme stylesheets that were being included also got bumped up to 1.9, while the version of jQueryUI that's included with WP 3.1-3.4.2 is 1.8, causing some issues with layout. The plugin has been updated to be more specific about which stylesheet is included, using 1.7 for versions of WP earlier than 3.1, using 1.8 for versions between 3.1 and 3.5 (not including 3.5) and using 1.9 for 3.5 and above.
@@ -125,5 +137,11 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 This is the first version of this plugin
 
 == Upgrade Notice ==
+= 0.4 =
+Adds ability to use more than one collapsible widget area and implements shortcode
+
+= 0.3.1a =
+Remove extraneous debug info that caused PHP error
+
 = 0.3a =
 Fixes issue with CSS for accordion and tab styles
