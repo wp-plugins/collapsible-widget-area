@@ -2,9 +2,9 @@
 Contributors: cgrymala
 Donate link: http://giving.umw.edu/
 Tags: tab, accordion, widget, jquery, tabbed
-Requires at least: 3.3
+Requires at least: 3.4.2
 Tested up to: 3.5
-Stable tag: 0.3.1a
+Stable tag: 0.4
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
 
@@ -14,7 +14,7 @@ This plugin allows you to combine multiple widgets into a single tabbed/accordio
 
 = Usage =
 
-To use this plugin, simply drag widgets into the "Collapsible Widget Area" widget area in Appearance -&gt; Widgets within your admin area. Once you've done that, reload the Appearance -&gt; Widgets page and drag the Collapsible Widget into the sidebar in which you want it to appear.
+To use this plugin, simply drag widgets into the "Collapsible Widget Area" widget area in Appearance -&gt; Widgets within your admin area. Once you've done that, reload the Appearance -&gt; Widgets page and drag the Collapsible Widget into the sidebar in which you want it to appear. Do *not* drag a "Collapsible Widget" into any of the existing "Collapsible Widget Area" sidebars.
 
 = Options =
 
@@ -118,10 +118,12 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 
 == Changelog ==
 
-= 0.4a =
+= 0.4 =
+* Fixed more jQuery/UI issues that cropped up when 3.5 went final
 * Implement ability to use more than one collapsible widget area
 * Implement error handling for situations where a collapsible widget is dragged into a collapsible widget area
-* Begin implementing shortcode
+* Begin implementing shortcode (still remains fairly untested)
+* Fixes various bugs (for instance, if you specified an accordion should be collapsible, that might not have worked correctly)
 
 = 0.3.1a =
 * Remove extraneous debug info that threw PHP error about headers already being sent
@@ -138,7 +140,7 @@ This is the first version of this plugin
 
 == Upgrade Notice ==
 = 0.4 =
-Adds ability to use more than one collapsible widget area and implements shortcode
+You may need to re-save your Collapsible Widget after upgrading. This version adds the ability to use more than one collapsible widget area and implements shortcode. 
 
 = 0.3.1a =
 Remove extraneous debug info that caused PHP error

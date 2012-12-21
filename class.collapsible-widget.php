@@ -25,7 +25,7 @@ class collapsible_widget extends WP_Widget {
 		} elseif ( version_compare( $wp_version, '3.4.100', '<' ) ) {
 			$uivers = 1.8;
 		} else {
-			$uivers = '1.9.0';
+			$uivers = '1.9.2';
 		}
 		
 		$widget_ops = array( 
@@ -225,17 +225,23 @@ class collapsible_widget extends WP_Widget {
 	}
 	
 	function print_footer_scripts() {
+		global $cwa_printed_footer_scripts;
+		if ( isset( $cwa_printed_footer_scripts ) && $cwa_printed_footer_scripts )
+			return;
+		
 		echo '<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $this->instance ) . ';</script>';
 		wp_enqueue_script( 'jquery-ui-accordion' );
 		wp_enqueue_script( 'jquery-cookie' );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 		
 		wp_enqueue_script( 'collapsible-widgets' );
+		
+		$cwa_printed_footer_scripts = true;
 		return;
 	}
 	
 	function is_true( &$val ) {
-		$val = ! in_array( $val, array( 'false', false, 0, '0' ) );
+		$val = ! in_array( $val, array( 'false', false, 0, '0' ), true );
 		return $val;
 	}
 }
