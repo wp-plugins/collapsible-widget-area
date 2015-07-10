@@ -2,9 +2,9 @@
 Contributors: cgrymala
 Donate link: http://giving.umw.edu/
 Tags: tab, accordion, widget, jquery, tabbed
-Requires at least: 3.4.2
-Tested up to: 3.5
-Stable tag: 0.4
+Requires at least: 4.0
+Tested up to: 4.3
+Stable tag: 0.5
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
 
@@ -117,6 +117,11 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 4. A tabbed interface in the TwentyEleven Footer Area One, with the "Cupertino" jQueryUI theme applied
 
 == Changelog ==
+
+= 0.5 =
+* Update compatibility
+* Fix old-style widget constructor
+* Update version of jQueryUI themes used in newer versions of WordPress
 
 = 0.4 =
 * Fixed more jQuery/UI issues that cropped up when 3.5 went final
