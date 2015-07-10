@@ -1,6 +1,7 @@
 <?php
 /**
  * Define the class for the actual Collapsible widget
+ * @version 0.5
  */
 class collapsible_widget extends WP_Widget {
 	/**
@@ -15,17 +16,18 @@ class collapsible_widget extends WP_Widget {
 	function __construct() {
 		/**
 		 * Attempt to determine which version of jQueryUI is being used
+		 * v4.2 uses jQueryUI v1.11.4
+		 * v4.1 uses jQueryUI v1.11.2
+		 * v4.0 uses jQueryUI v1.10.4
 		 * v3.5 uses jQueryUI v1.9.x
 		 * v3.1-3.4.2 uses jQueryUI 1.8.x
 		 * v2.8-3.0 uses jQueryUI 1.7.x
 		 */
 		global $wp_version;
-		if ( version_compare( $wp_version, '3.1', '<' ) ) {
-			$uivers = 1.7;
-		} elseif ( version_compare( $wp_version, '3.4.100', '<' ) ) {
-			$uivers = 1.8;
+		if ( version_compare( $wp_version, '4.1', '<' ) ) {
+			$uivers = '1.10';
 		} else {
-			$uivers = '1.9.2';
+			$uivers = '1.11';
 		}
 		
 		$widget_ops = array( 
@@ -36,7 +38,7 @@ class collapsible_widget extends WP_Widget {
 			'id_base' => 'collapsible-widget', 
 			'class'   => 'collapsible-widget', 
 		);
-		parent::WP_Widget( 'collapsible-widget', __( 'Collapsible Widget', 'collapsible-widget-area' ), $widget_ops, $control_ops );
+		parent::__construct( 'collapsible-widget', __( 'Collapsible Widget', 'collapsible-widget-area' ), $widget_ops, $control_ops );
 		
 		global $collapsible_widget_area;
 		$options = $collapsible_widget_area->_get_options();
@@ -101,7 +103,7 @@ class collapsible_widget extends WP_Widget {
 		if ( $instance['invalid-widget'] ) {
 ?>
 <?php _e( '<p>You attempted to set up a collapsible widget inside of a collapsible widget area. This could cause an infinite recursion resulting in a tear in the space-time continuum.</p> <p><strong>Please remove this widget from this sidebar</strong> in order to avoid destroying the entire universe. Thank you.</p>' ) ?>
-			<div class="hidden"><input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php _e( 'Error - Attention Required' ) ?>" readonly="readonly" /></div>
+			<div class="hidden"><input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php _e( 'Error - Attention Required' ) ?>" readonly /></div>
 <?php
 			return;
 		}
@@ -115,7 +117,7 @@ class collapsible_widget extends WP_Widget {
 		/*$this->widgets_list();*/
 ?>
 	<p><label for="<?php echo $this->get_field_id( 'title' ) ?>"><?php _e( 'Title:' ) ?></label><br />
-    	<input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php echo $instance['title'] ?>" readonly="readonly" /><br />
+    	<input type="text" name="<?php echo $this->get_field_name( 'title' ) ?>" id="<?php echo $this->get_field_id( 'title' ) ?>" value="<?php echo $instance['title'] ?>" readonly /><br />
         <em><?php _e( 'The title is used only to differentiate between instances, and is automatically generated based on the collapsible widget area you choose below. It does not show up on the front-end anywhere.' ) ?></em></p>
     <hr />
 	<p><label for="<?php echo $this->get_field_id( 'sidebar_id' ) ?>"><?php _e( 'Which collapsible widget area should be used?' ) ?></label><br/>
