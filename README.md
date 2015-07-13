@@ -9,7 +9,7 @@
 
 **Tested up to:** 4.3
 
-**Stable tag:** 0.5.1
+**Stable tag:** 0.5.2
 
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
@@ -145,6 +145,9 @@ Yes, you can see some [very basic code examples of how these filters can be used
 
 
 ## Changelog ##
+
+### 0.5.2 ###
+* Increment version number because code push didn't work properly with 0.5.1
 
 ### 0.5.1 ###
 * Fixes bug with [the way scripts/styles are enqueued/registered](https://wordpress.org/support/topic/register_sidebar-complaint-with-collapsible-widget-area?replies=1) h/t NinjaDoll_

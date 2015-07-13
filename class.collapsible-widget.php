@@ -1,7 +1,7 @@
 <?php
 /**
  * Define the class for the actual Collapsible widget
- * @version 0.5
+ * @version 0.5.2
  */
 class collapsible_widget extends WP_Widget {
 	/**
