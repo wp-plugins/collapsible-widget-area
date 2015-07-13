@@ -310,7 +310,7 @@ class collapsible_widget_area {
 
 	function uiThemesList() {
 		$list = apply_filters( 'collapsible-widget-theme-list', array( 
-			'base'      => 'Base Theme', 
+			/*'base'      => 'Base Theme', */
 			'black-tie' => 'Black Tie', 
 			'blitzer'   => 'Blitzer', 
 			'cupertino' => 'Cupertino', 
