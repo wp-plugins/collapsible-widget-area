@@ -14,6 +14,25 @@ class collapsible_widget extends WP_Widget {
 	 * Construct our widget item
 	 */
 	function __construct() {
+		$this->version = '0.5.1';
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		
+		$widget_ops = array( 
+			'classname'   => 'collapsible-widget', 
+			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
+		);
+		$control_ops = array( 
+			'id_base' => 'collapsible-widget', 
+			'class'   => 'collapsible-widget', 
+		);
+		parent::__construct( 'collapsible-widget', __( 'Collapsible Widget', 'collapsible-widget-area' ), $widget_ops, $control_ops );
+	}
+	
+	/**
+	 * Determine which scripts & styles are necessary and register/enqueue them
+	 */
+	function enqueue_scripts() {
 		/**
 		 * Attempt to determine which version of jQueryUI is being used
 		 * v4.2 uses jQueryUI v1.11.4
@@ -25,25 +44,17 @@ class collapsible_widget extends WP_Widget {
 		 */
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.1', '<' ) ) {
-			$uivers = '1.10';
+			$uivers = '1.10.4';
+		} else if ( version_compare( $wp_version, '4.2', '<' ) ) {
+			$uivers = '1.11.2';
 		} else {
-			$uivers = '1.11';
+			$uivers = '1.11.4';
 		}
-		
-		$widget_ops = array( 
-			'classname'   => 'collapsible-widget', 
-			'description' => 'Display multiple widgets in a collapsible (accordion or tabbed) interface.' 
-		);
-		$control_ops = array( 
-			'id_base' => 'collapsible-widget', 
-			'class'   => 'collapsible-widget', 
-		);
-		parent::__construct( 'collapsible-widget', __( 'Collapsible Widget', 'collapsible-widget-area' ), $widget_ops, $control_ops );
 		
 		global $collapsible_widget_area;
 		$options = $collapsible_widget_area->_get_options();
 		if ( ! array_key_exists( 'uitheme', $options ) || empty( $options['uitheme'] ) )
-			$options['uitheme'] = 'base';
+			$options['uitheme'] = 'smoothness';
 		if ( 'none' == $options['uitheme'] ) {
 			$theme = null;
 		} else if ( ! stristr( '//', $options['uitheme'] ) ) {
@@ -51,14 +62,16 @@ class collapsible_widget extends WP_Widget {
 		} else {
 			$theme = $options['uitheme'];
 		}
+		
 		$theme = apply_filters( 'collapsible-widget-ui-theme', $theme, $options['uitheme'] );
 		if ( ! empty( $theme ) )
 			wp_register_style( 'jquery-ui', $theme, array(), $uivers, 'screen' );
 		
-		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), '0.4a', true );
+		wp_register_style( 'collapsible-widgets', plugins_url( 'css/collapsible-widgets.css', __FILE__ ), array( 'jquery-ui' ), $this->version, true );
 		
 		wp_register_script( 'jquery-cookie', plugins_url( 'scripts/jquery.cookie.js', __FILE__ ), array( 'jquery-ui-tabs' ), '1.0', true );
-		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array(), '0.4.0a', true );
+		wp_register_script( 'collapsible-widgets', plugins_url( 'scripts/collapsible-widgets.js', __FILE__ ), array( 'jquery-cookie', 'jquery-ui-accordion' ), $this->version, true );
+		
 		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
 			/*print( "\n<!-- This is a version lower than 3.3 -->\n" );*/
 			/*wp_register_script( 'jquery-ui', includes_url( 'js/jquery/ui.core.js' ), array( 'jquery' ), '1.8.12', true );*/
@@ -214,7 +227,7 @@ class collapsible_widget extends WP_Widget {
 		$id = 'collapsible-widget-container-' . uniqid();
 		$this->instance[] = array(
 			'id'          => $id, 
-			'type'        => 'accordion' === $instance['show_what'] ? 'accordion' : 'tabbed', 
+			'type'        => 'accordion' == $instance['show_what'] ? 'accordion' : 'tabbed', 
 			'collapsible' => $this->is_true( $instance['collapsible'] ), 
 			'closed'      => $this->is_true( $instance['closed'] ), 
 			'cookie'      => $this->is_true( $instance['cookie'] ), 
@@ -231,10 +244,15 @@ class collapsible_widget extends WP_Widget {
 		if ( isset( $cwa_printed_footer_scripts ) && $cwa_printed_footer_scripts )
 			return;
 		
-		echo '<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $this->instance ) . ';</script>';
-		wp_enqueue_script( 'jquery-ui-accordion' );
+		$this->instance = apply_filters( 'collapsible-widget-javascript-arguments', $this->instance );
+		
+		echo '
+<!-- Collapsible Widget Area Options -->
+<script type="text/javascript">var collapsible_widget_area = ' . json_encode( $this->instance ) . ';</script>
+<!-- / Collapsible Widget Area Options -->';
+		/*wp_enqueue_script( 'jquery-ui-accordion' );
 		wp_enqueue_script( 'jquery-cookie' );
-		wp_enqueue_script( 'jquery-ui-tabs' );
+		wp_enqueue_script( 'jquery-ui-tabs' );*/
 		
 		wp_enqueue_script( 'collapsible-widgets' );
 		

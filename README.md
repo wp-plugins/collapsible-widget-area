@@ -5,11 +5,11 @@
 
 **Tags:** tab, accordion, widget, jquery, tabbed
 
-**Requires at least:** 3.4.2
+**Requires at least:** 4.0
 
-**Tested up to:** 3.5
+**Tested up to:** 4.3
 
-**Stable tag:** 0.4
+**Stable tag:** 0.5.1
 
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
@@ -114,6 +114,12 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 * `collapsible-widget-ui-theme` - the parameters sent to this filter are: 1) the URI of the CSS file being used (or a blank string if "none" was selected from the options) and 2) the theme option that was selected in the plugin's settings
 * `collapsible-widget-area-args` - the arguments sent to the `register_sidebar()` function when registering the Collapsible Widget Area sidebar
 * `collapsible-widget-theme-list` - an associative array of the jQueryUI themes available for use with this plugin: The keyword used in the Google CDN URI (or, the full URI to a custom theme) is used as the key, and the human-friendly name of the theme is used as the value for each array item.
+* `collapsible-widget-defaults`
+* `collapsible-widget-javascript-arguments` (since v0.5.1) - the arguments printed in JSON to tell jQueryUI how to instantiate the accordion/tab items. This is a nested array of arguments. Reasons to use this might include changing the `heightStyle` argument, so that accordion areas are only as tall as the content inside of them, rather than all being a uniform height.
+
+### Can I see examples of how to use these filters? ###
+
+Yes, you can see some [very basic code examples of how these filters can be used](https://gist.github.com/cgrymala/2799d4813813b2bdb5b6) on Github.
 
 ## Screenshots ##
 
@@ -140,6 +146,17 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 
 ## Changelog ##
 
+### 0.5.1 ###
+* Fixes bug with [the way scripts/styles are enqueued/registered](https://wordpress.org/support/topic/register_sidebar-complaint-with-collapsible-widget-area?replies=1) h/t NinjaDoll_
+* The "Base" theme no longer seems to exist, so it has been removed from options and the new default UI theme is Smoothness
+* Fixes bug [with missing UI stylesheets](https://wordpress.org/support/topic/jquery-ui-error?replies=1) h/t Ayreona (Google doesn't treat the style sheet versions the same way it treats the scripts, so explicit version numbers are necessary in the style sheet URL).
+* Adds `collapsible-widget-javascript-arguments` filter to allow modifying widget arguments (see FAQ for usage information) h/t nstampler and ndesign55 for suggestion
+
+### 0.5 ###
+* Update compatibility
+* Fix old-style widget constructor
+* Update version of jQueryUI themes used in newer versions of WordPress
+
 ### 0.4 ###
 * Fixed more jQuery/UI issues that cropped up when 3.5 went final
 * Implement ability to use more than one collapsible widget area
@@ -161,11 +178,20 @@ Since this plugin uses jQueryUI, it uses the same style definitions that any oth
 This is the first version of this plugin
 
 ## Upgrade Notice ##
+
+### 0.5.1 ###
+
+* Fixes potential warning about wp_enqueue_scripts
+* Fixes potential issue with missing UI style sheet
+
 ### 0.4 ###
+
 You may need to re-save your Collapsible Widget after upgrading. This version adds the ability to use more than one collapsible widget area and implements shortcode.
 
 ### 0.3.1a ###
+
 Remove extraneous debug info that caused PHP error
 
 ### 0.3a ###
+
 Fixes issue with CSS for accordion and tab styles
