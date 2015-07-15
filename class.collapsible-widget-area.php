@@ -1,8 +1,17 @@
 <?php
 /**
  * Define the collapsible_widget_area class
+ * This class creates and sets up a new widgetized area
+ * 		that is designed to allow users to drag widgets 
+ * 		in. Those widgets will then be combined into a 
+ * 		single, collapsible widget that is set up through 
+ * 		the collapsible_widget class
+ *
+ * @package collapsible-widget-area
+ * @version 0.5.3
  */
 class collapsible_widget_area {
+	var $version = '0.5.3';
 	var $args = array();
 	var $sidebar_id = null;
 	var $is_multinetwork = false;
@@ -75,12 +84,14 @@ class collapsible_widget_area {
 			$this->sidebar_args[$i] = $args;
 		}
 		
-		if ( is_admin() ) {
-			wp_register_script( 'collapsible-widgets-admin', plugins_url( 'scripts/collapsible-widgets-admin.js', __FILE__ ), array( 'jquery' ), '0.4.0a', true );
-		}
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		
 		add_action( 'admin_menu', array( $this, 'add_options_page' ) );
 		add_shortcode( 'collapsible-widget', array( $this, 'do_shortcode' ) );
+	}
+	
+	function admin_enqueue_scripts() {
+		wp_register_script( 'collapsible-widgets-admin', plugins_url( 'scripts/collapsible-widgets-admin.js', __FILE__ ), array( 'jquery', 'admin-widgets' ), $this->version, true );
 	}
 	
 	function do_shortcode( $atts ) {
@@ -104,8 +115,8 @@ class collapsible_widget_area {
 	 * Register all of the fields for the settings page
 	 */
 	function add_settings_fields() {
-		add_settings_field( 'uitheme', __( 'Theme to use:' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'uitheme', 'field_name' => 'uitheme' ) );
-		add_settings_field( 'collapsible-sidebars', __( 'Number of collapsible areas to create?' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'sidebars', 'field_name' => 'sidebars' ) );
+		add_settings_field( 'uitheme', __( 'Theme to use:', 'collapsible-widget-area' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'uitheme', 'field_name' => 'uitheme' ) );
+		add_settings_field( 'collapsible-sidebars', __( 'Number of collapsible areas to create?', 'collapsible-widget-area' ), array( $this, 'do_settings_field' ), $this->settings_page, 'collapsible_widgets_section', array( 'label_for' => 'sidebars', 'field_name' => 'sidebars' ) );
 	}
 	
 	function settings_section() {
@@ -126,7 +137,7 @@ class collapsible_widget_area {
 				$opts = $this->uiThemesList();
 ?>
 	<select name="collapsible-widget-options[<?php echo $args['field_name'] ?>]" id="<?php echo $args['label_for'] ?>" class="widefat">
-    	<option value=""<?php selected( $this->options['uitheme'], '' ) ?>><?php _e( 'Use default' ) ?></option>
+    	<option value=""<?php selected( $this->options['uitheme'], '' ) ?>><?php _e( 'Use default', 'collapsible-widget-area' ) ?></option>
 <?php
 				foreach ( $opts as $v=>$l ) {
 ?>
@@ -150,11 +161,11 @@ class collapsible_widget_area {
 	 * @uses add_options_page()
 	 */
 	function add_options_page() {
-		add_settings_section( 'collapsible_widgets_section', __( 'Collapsible Widget Area Settings' ), array( $this, 'settings_section' ), $this->settings_page );
+		add_settings_section( 'collapsible_widgets_section', __( 'Collapsible Widget Area Settings', 'collapsible-widget-area' ), array( $this, 'settings_section' ), $this->settings_page );
 		$this->add_settings_fields();
 		register_setting( 'collapsible_widgets_section', 'collapsible-widget-options', array( $this, 'sanitize_settings' ) );
 		
-		$args = array( __( 'Collapsible Widget Options' ), __( 'Collapsible Widget Options' ), 'manage_options', $this->settings_page, array( $this, 'admin_options_page' ) );
+		$args = array( __( 'Collapsible Widget Options', 'collapsible-widget-area' ), __( 'Collapsible Widget Options', 'collapsible-widget-area' ), 'manage_options', $this->settings_page, array( $this, 'admin_options_page' ) );
 		list( $page_title, $menu_title, $cap, $slug, $callback ) = $args;
 		add_options_page( $page_title, $menu_title, $cap, $slug, $callback );
 	}
@@ -182,17 +193,17 @@ class collapsible_widget_area {
 		if ( ! is_multisite() || ! is_plugin_active_for_network( $this->plugin_file ) )
 			return;
 		
-		add_settings_section( 'collapsible_widgets_section', __( 'Collapsible Widget Area Settings' ), array( $this, 'settings_section' ), $this->settings_page );
+		add_settings_section( 'collapsible_widgets_section', __( 'Collapsible Widget Area Settings', 'collapsible-widget-area' ), array( $this, 'settings_section' ), $this->settings_page );
 		$this->add_settings_fields();
 		register_setting( 'collapsible_widgets_section', 'collapsible-widget-options', array( $this, 'sanitize_settings' ) );
 		
-		$args = array( __( 'Collapsible Widget Options' ), __( 'Collapsible Widget Options' ), 'manage_network_options', $this->settings_page, array( $this, 'admin_options_page' ) );
+		$args = array( __( 'Collapsible Widget Options', 'collapsible-widget-area' ), __( 'Collapsible Widget Options', 'collapsible-widget-area' ), 'manage_network_options', $this->settings_page, array( $this, 'admin_options_page' ) );
 		list( $page_title, $menu_title, $cap, $slug, $callback ) = $args;
 		
 		add_submenu_page( 'settings.php', $page_title, $menu_title, $cap, $slug, $callback );
 		if ( $this->_is_primary_network ) {
-			$page_title = sprintf( __( 'Multinetwork %s' ), $page_title );
-			$menu_title = sprintf( __( 'Multinetwork %s' ), $menu_title );
+			$page_title = sprintf( __( 'Multinetwork %s', 'collapsible-widget-area' ), $page_title );
+			$menu_title = sprintf( __( 'Multinetwork %s', 'collapsible-widget-area' ), $menu_title );
 			$cap = 'manage_networks';
 			add_submenu_page( 'sites.php', $page_title, $menu_title, $cap, $slug, $callback );
 		}
@@ -206,18 +217,18 @@ class collapsible_widget_area {
 		$this->options = $this->_get_admin_opt_vals();
 ?>
 <div class="wrap">
-	<h2><?php _e( 'Collapsible Widget Area Options' ) ?></h2>
+	<h2><?php _e( 'Collapsible Widget Area Options', 'collapsible-widget-area' ) ?></h2>
 <?php
 		if ( $this->_is_mn_settings_page ) {
 			$action = '';
 ?>
-	<p><em><?php _e( 'This is the settings page for the entire multi-network installation. Any options set here will act as the default for all sites; but can be overridden at the individual network level <strong>and</strong> at the individual site level.' ) ?></em></p>
+	<p><em><?php _e( 'This is the settings page for the entire multi-network installation. Any options set here will act as the default for all sites; but can be overridden at the individual network level <strong>and</strong> at the individual site level.', 'collapsible-widget-area' ) ?></em></p>
 <?php
 		} else if ( is_multisite() && is_network_admin() ) {
 			$action = '';
 			if ( ! $this->is_multinetwork ) {
 ?>
-	<p><em><?php _e( 'This is the settings page for the entire network. Any options set here will act as the default for all sites; but can be overridden at the individual site level.' ) ?></em></p>
+	<p><em><?php _e( 'This is the settings page for the entire network. Any options set here will act as the default for all sites; but can be overridden at the individual site level.', 'collapsible-widget-area' ) ?></em></p>
 <?php
 			}
 		} else {
@@ -233,7 +244,7 @@ class collapsible_widget_area {
 	<form name="collwidopts" action="<?php echo $action ?>" method="post">
     	<?php settings_fields( 'collapsible_widgets_section' ) ?>
         <?php do_settings_sections( $this->settings_page ) ?>
-        <p><input type="submit" value="<?php _e( 'Save' ) ?>" class="button-primary"/></p>
+        <p><input type="submit" value="<?php _e( 'Save', 'collapsible-widget-area' ) ?>" class="button-primary"/></p>
     </form>
 </div>
 <?php

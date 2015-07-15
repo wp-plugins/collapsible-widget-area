@@ -1,16 +1,16 @@
 # Collapsible Widget Area #
 **Contributors:** cgrymala
-
+  
 **Donate link:** http://giving.umw.edu/
-
+  
 **Tags:** tab, accordion, widget, jquery, tabbed
-
+  
 **Requires at least:** 4.0
-
+  
 **Tested up to:** 4.3
-
-**Stable tag:** 0.5.2
-
+  
+**Stable tag:** 0.5.3
+  
 
 Creates a tabbed or accordion-style widget that can hold other widgets.
 
@@ -146,6 +146,10 @@ Yes, you can see some [very basic code examples of how these filters can be used
 
 ## Changelog ##
 
+### 0.5.3 ###
+* Fixes bug with [wp_register_script location](https://wordpress.org/support/topic/register_sidebar-complaint-with-collapsible-widget-area?replies=7#post-7181713) h/t NinjaDoll_
+* Fixes bug with [undefined index on Widgets screen](https://wordpress.org/support/topic/register_sidebar-complaint-with-collapsible-widget-area?replies=7#post-7181886) h/t NinjaDoll_
+
 ### 0.5.2 ###
 * Increment version number because code push didn't work properly with 0.5.1
 
@@ -182,6 +186,13 @@ This is the first version of this plugin
 
 ## Upgrade Notice ##
 
+### 0.5.3 -
+
+* Fixes potential warning about wp_register_script
+* Fixes potential warning about undefined index
+* Updates translatable strings within plugin
+
+###
 ### 0.5.1 ###
 
 * Fixes potential warning about wp_enqueue_scripts
